@@ -29,7 +29,7 @@ const LandingPage = () => {
       <header className="bg-gradient-to-r from-white-500 to-green-500 text-white py-6 shadow-md">
         <div className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8">
           <Link to="/" className="text-2xl sm:text-4xl font-bold text-black hover:text-white-200">
-            Saylani Microfinance
+             Microfinance
           </Link>
           <nav className="flex flex-wrap gap-2 sm:gap-4">
             {navLinks.map(({ to, label }) => (
@@ -172,7 +172,7 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-6 sm:py-8">
         <div className="w-full max-w-7xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <p className="text-sm">&copy; {new Date().getFullYear()} Saylani Microfinance. All rights reserved.</p>
+          <p className="text-sm">&copy; {new Date().getFullYear()}  Microfinance. All rights reserved.</p>
         </div>
       </footer>
     </div>
