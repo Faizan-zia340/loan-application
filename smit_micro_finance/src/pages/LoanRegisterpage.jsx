@@ -23,7 +23,7 @@ const LoanRegisterPage = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-200 to-green-400 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-200 to-green-700 px-4">
         <div className="w-full max-w-lg bg-white p-8 rounded-2xl shadow-lg">
           <h2 className="text-3xl font-bold text-green-700 text-center mb-6">
             Loan Registration

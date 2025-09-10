@@ -48,9 +48,9 @@ const RegisterPage = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-200 to-blue-700 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-200 to-green-700 px-4">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-          <h2 className="text-3xl font-bold text-blue-700 text-center mb-6">Register</h2>
+          <h2 className="text-3xl font-bold text-green-700 text-center mb-6">Register</h2>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <form onSubmit={handleSubmit} className="space-y-5">
             <input
@@ -59,7 +59,7 @@ const RegisterPage = () => {
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Full Name"
-              className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"
               required
             />
             <input
@@ -68,7 +68,7 @@ const RegisterPage = () => {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="Email Address"
-              className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"
               required
             />
             <input
@@ -77,7 +77,7 @@ const RegisterPage = () => {
               value={formData.cnic}
               onChange={handleInputChange}
               placeholder="CNIC"
-              className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"
               required
             />
             <input
@@ -86,7 +86,7 @@ const RegisterPage = () => {
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Password"
-              className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"
               required
             />
             <input
@@ -95,12 +95,12 @@ const RegisterPage = () => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               placeholder="Confirm Password"
-              className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:ring-green-500 focus:border-green-500"
               required
             />
             <button
               type="submit"
-              className="w-full py-3 bg-blue-600 text-black rounded-lg font-semibold hover:bg-blue-700 transition"
+              className="w-full py-3 bg-green-600 text-black rounded-lg font-semibold hover:bg-green-700 transition"
             >
               Register
             </button>

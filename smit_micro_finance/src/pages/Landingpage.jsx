@@ -8,13 +8,23 @@ const LandingPage = () => {
   const [monthlyPayment, setMonthlyPayment] = useState(null)
 
   const handleCategoryClick = (category) => {
-    setSelectedCategory({ ...category, selectedSubs: [] })
+    setSelectedCategory({ ...category, selectedSub: null, customAmount: "" })
     setMonthlyPayment(null)
   }
 
   const calculatePayment = (e) => {
     e.preventDefault()
-    const amount = Number.parseFloat(selectedCategory.limit.replace(/[^0-9]/g, "")) * 100000
+
+    let amount
+
+    // Education Loans → user input amount
+    if (selectedCategory.title === "Education Loans") {
+      amount = Number(selectedCategory.customAmount)
+    } else {
+      // Other Loans → fixed amount from limit
+      amount = Number.parseFloat(selectedCategory.limit.replace(/[^0-9]/g, "")) * 100000
+    }
+
     const termInMonths = Number(selectedCategory.timeperiod) * 12
 
     if (amount && termInMonths) {
@@ -29,7 +39,7 @@ const LandingPage = () => {
       <header className="bg-gradient-to-r from-white-500 to-green-500 text-white py-6 shadow-md">
         <div className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8">
           <Link to="/" className="text-2xl sm:text-4xl font-bold text-black hover:text-white-200">
-             Microfinance
+            Microfinance
           </Link>
           <nav className="flex flex-wrap gap-2 sm:gap-4">
             {navLinks.map(({ to, label }) => (
@@ -101,8 +111,8 @@ const LandingPage = () => {
       {selectedCategory && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
-            <button 
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-900 font-bold" 
+            <button
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-900 font-bold"
               onClick={() => setSelectedCategory(null)}
             >
               &times;
@@ -115,26 +125,24 @@ const LandingPage = () => {
                 <input type="text" value={selectedCategory.title} readOnly className="w-full border rounded p-2 bg-gray-100" />
               </div>
 
-              {/* Subcategories */}
+              {/* Subcategories (radio buttons) */}
               {selectedCategory.subcategories && (
                 <div>
-                  <label className="block font-semibold mb-1">Select Subcategories</label>
+                  <label className="block font-semibold mb-1">Select Subcategory</label>
                   <div className="flex flex-col gap-2 max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
                     {selectedCategory.subcategories.split(",").map((sub, idx) => (
                       <label key={idx} className="flex items-center gap-2">
-                        <input 
-                          type="checkbox" 
-                          value={sub.trim()} 
-                          className="form-checkbox"
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            setSelectedCategory((prev) => {
-                              let selectedSubs = prev.selectedSubs || [];
-                              if (checked) selectedSubs.push(sub.trim());
-                              else selectedSubs = selectedSubs.filter(s => s !== sub.trim());
-                              return { ...prev, selectedSubs };
-                            });
-                          }}
+                        <input
+                          type="radio"
+                          name="subcategory"
+                          value={sub.trim()}
+                          className="form-radio"
+                          onChange={(e) =>
+                            setSelectedCategory((prev) => ({
+                              ...prev,
+                              selectedSub: e.target.value,
+                            }))
+                          }
                         />
                         {sub.trim()}
                       </label>
@@ -144,10 +152,26 @@ const LandingPage = () => {
               )}
 
               {/* Loan Amount */}
-              {selectedCategory.limit > 0 && (
+              {selectedCategory.title === "Education Loans" ? (
+                <div>
+                  <label className="block font-semibold">Loan Amount (PKR)</label>
+                  <input
+                    type="number"
+                    placeholder="Enter required amount"
+                    className="w-full border rounded p-2"
+                    onChange={(e) =>
+                      setSelectedCategory((prev) => ({
+                        ...prev,
+                        customAmount: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+              ) : (
                 <div>
                   <label className="block font-semibold">Loan Amount</label>
-                  <input type="number" value={selectedCategory.limit} readOnly className="w-full border rounded p-2 bg-gray-100" />
+                  <input type="text" value={selectedCategory.limit} readOnly className="w-full border rounded p-2 bg-gray-100" />
                 </div>
               )}
 
@@ -157,7 +181,22 @@ const LandingPage = () => {
                 <input type="number" value={selectedCategory.timeperiod} readOnly className="w-full border rounded p-2 bg-gray-100" />
               </div>
 
-              <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Calculate</button>
+              {/* Calculate Button */}
+              <button
+                type="submit"
+                disabled={
+                  (selectedCategory.subcategories && !selectedCategory.selectedSub) ||
+                  (selectedCategory.title === "Education Loans" && !selectedCategory.customAmount)
+                }
+                className={`w-full py-2 rounded-lg text-white font-bold ${
+                  (selectedCategory.subcategories && !selectedCategory.selectedSub) ||
+                  (selectedCategory.title === "Education Loans" && !selectedCategory.customAmount)
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+              >
+                Calculate
+              </button>
             </form>
 
             {monthlyPayment && (
@@ -172,7 +211,7 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-6 sm:py-8">
         <div className="w-full max-w-7xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <p className="text-sm">&copy; {new Date().getFullYear()}  Microfinance. All rights reserved.</p>
+          <p className="text-sm">&copy; {new Date().getFullYear()} Microfinance. All rights reserved.</p>
         </div>
       </footer>
     </div>
@@ -181,7 +220,6 @@ const LandingPage = () => {
 
 // Navigation links
 const navLinks = [
-  { to: "/", label: "Home" },
   { to: "/register", label: "Register" },
   { to: "/login", label: "Login" },
 ]

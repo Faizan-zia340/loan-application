@@ -1,180 +1,114 @@
-"use client"
-
 import { useState } from "react";
+import Layout from "../components/Layout";
 
-const LoanApplication = () => {
-  // State for loan details
-  const [loanDetails, setLoanDetails] = useState({
+export default function LoanApplication() {
+  const [data, setData] = useState({
+    address: "",
+    phone: "",
     guarantors: [
       { name: "", email: "", location: "", cnic: "" },
       { name: "", email: "", location: "", cnic: "" },
     ],
     statement: null,
     salarySheet: null,
-    address: "",
-    phone: "",
   });
 
-  // State for slip generation
-  const [applicationSubmitted, setApplicationSubmitted] = useState(false);
-  const [slipDetails, setSlipDetails] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [slip, setSlip] = useState(null);
 
-  // Handle input changes
-  const handleInputChange = (e, field, index = null) => {
-    if (index !== null) {
-      const updatedGuarantors = [...loanDetails.guarantors];
-      updatedGuarantors[index][field] = e.target.value;
-      setLoanDetails({ ...loanDetails, guarantors: updatedGuarantors });
+  const onInput = (e, field, idx = null) => {
+    if (idx !== null) {
+      const g = [...data.guarantors];
+      g[idx][field] = e.target.value;
+      setData((s) => ({ ...s, guarantors: g }));
     } else {
-      setLoanDetails({ ...loanDetails, [field]: e.target.value });
+      setData((s) => ({ ...s, [field]: e.target.value }));
     }
   };
+  const onFile = (e, field) => setData((s) => ({ ...s, [field]: e.target.files[0] }));
 
-  // Handle file uploads
-  const handleFileUpload = (e, field) => {
-    setLoanDetails({ ...loanDetails, [field]: e.target.files[0] });
-  };
+  const validEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+  const validCNIC = (v) => /^(\d{13}|\d{5}-\d{7}-\d{1})$/.test(v);
+  const validPhone = (v) => /^0\d{10,11}$/.test(v); // simple local format
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-
-    // Generate token and QR code (mock)
-    const tokenNumber = `TOKEN-${Math.floor(1000 + Math.random() * 9000)}`;
-    const qrCode = `https://api.qrserver.com/v1/create-qr-code/?data=${tokenNumber}&size=150x150`;
-    const appointmentDetails = {
-      date: new Date().toLocaleDateString(),
-      time: "10:00 AM",
-      location: " Microfinance Office",
-    };
-
-    setSlipDetails({ tokenNumber, qrCode, appointmentDetails });
-    setApplicationSubmitted(true);
+    // basic checks
+    if (!data.address) return alert("Address required");
+    if (!validPhone(data.phone)) return alert("Enter valid phone (e.g. 03XXXXXXXXX)");
+    for (const g of data.guarantors) {
+      if (!g.name || !validEmail(g.email) || !g.location || !validCNIC(g.cnic)) {
+        return alert("Please enter valid guarantors info");
+      }
+    }
+    const token = `TOKEN-${Math.floor(1000 + Math.random() * 9000)}`;
+    const appointment = { date: new Date().toLocaleDateString(), time: "10:00 AM", location: "Microfinance Office" };
+    setSlip({ token, appointment });
+    setSubmitted(true);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Loan Application</h1>
+    <Layout>
+      <div className="bg-white p-6 rounded-lg shadow max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Loan Application</h1>
 
-        {!applicationSubmitted ? (
-          <form onSubmit={handleSubmit}>
-            {/* Address */}
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Address</label>
-              <input
-                type="text"
-                value={loanDetails.address}
-                onChange={(e) => handleInputChange(e, "address")}
-                className="w-full border rounded-lg p-2"
-                placeholder="Enter your address"
-                required
-              />
+        {!submitted ? (
+          <form onSubmit={onSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-semibold mb-2">Address</label>
+              <input value={data.address} onChange={(e) => onInput(e, "address")} className="w-full border rounded-lg p-2" placeholder="Enter your address" required />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-2">Phone Number</label>
+              <input value={data.phone} onChange={(e) => onInput(e, "phone")} className="w-full border rounded-lg p-2" placeholder="03XXXXXXXXX" required />
             </div>
 
-            {/* Phone */}
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Phone Number</label>
-              <input
-                type="text"
-                value={loanDetails.phone}
-                onChange={(e) => handleInputChange(e, "phone")}
-                className="w-full border rounded-lg p-2"
-                placeholder="Enter your phone number"
-                required
-              />
-            </div>
-
-            {/* Guarantors */}
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Guarantors</h2>
-            {loanDetails.guarantors.map((guarantor, i) => (
-              <div key={i} className="mb-6">
-                <h3 className="font-semibold text-gray-700 mb-2">Guarantor {i + 1}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    value={guarantor.name}
-                    onChange={(e) => handleInputChange(e, "name", i)}
-                    placeholder="Name"
-                    className="border rounded-lg p-2"
-                    required
-                  />
-                  <input
-                    type="email"
-                    value={guarantor.email}
-                    onChange={(e) => handleInputChange(e, "email", i)}
-                    placeholder="Email"
-                    className="border rounded-lg p-2"
-                    required
-                  />
-                  <input
-                    type="text"
-                    value={guarantor.location}
-                    onChange={(e) => handleInputChange(e, "location", i)}
-                    placeholder="Location"
-                    className="border rounded-lg p-2"
-                    required
-                  />
-                  <input
-                    type="text"
-                    value={guarantor.cnic}
-                    onChange={(e) => handleInputChange(e, "cnic", i)}
-                    placeholder="CNIC"
-                    className="border rounded-lg p-2"
-                    required
-                  />
-                </div>
+            <h2 className="text-xl font-semibold text-gray-800">Guarantors</h2>
+            {data.guarantors.map((g, i) => (
+              <div key={i} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input value={g.name} onChange={(e) => onInput(e, "name", i)} className="border rounded-lg p-2" placeholder="Name" required />
+                <input value={g.email} onChange={(e) => onInput(e, "email", i)} className="border rounded-lg p-2" placeholder="Email" required />
+                <input value={g.location} onChange={(e) => onInput(e, "location", i)} className="border rounded-lg p-2" placeholder="Location" required />
+                <input value={g.cnic} onChange={(e) => onInput(e, "cnic", i)} className="border rounded-lg p-2" placeholder="CNIC" required />
               </div>
             ))}
 
-            {/* Optional files */}
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Statement (Optional)</label>
-              <input
-                type="file"
-                onChange={(e) => handleFileUpload(e, "statement")}
-                accept=".pdf,.doc,.docx"
-              />
+            <div>
+              <label className="block text-sm font-semibold mb-2">Statement (Optional)</label>
+              <input type="file" onChange={(e) => onFile(e, "statement")} accept=".pdf,.doc,.docx" />
             </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Salary Sheet (Optional)</label>
-              <input
-                type="file"
-                onChange={(e) => handleFileUpload(e, "salarySheet")}
-                accept=".pdf,.doc,.docx"
-              />
+            <div>
+              <label className="block text-sm font-semibold mb-2">Salary Sheet (Optional)</label>
+              <input type="file" onChange={(e) => onFile(e, "salarySheet")} accept=".pdf,.doc,.docx" />
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
-            >
+            <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded">
               Submit Application
             </button>
           </form>
         ) : (
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Application Submitted</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">Application Submitted</h2>
             <p className="mb-4">Here are your application details:</p>
-            <div className="p-4 bg-gray-100 rounded-lg shadow mb-4 inline-block text-left">
-              <p><strong>Token Number:</strong> {slipDetails.tokenNumber}</p>
-              <p><strong>Appointment Date:</strong> {slipDetails.appointmentDetails.date}</p>
-              <p><strong>Appointment Time:</strong> {slipDetails.appointmentDetails.time}</p>
-              <p><strong>Office Location:</strong> {slipDetails.appointmentDetails.location}</p>
-              <p className="mt-2"><strong>QR Code:</strong></p>
-              <img src={slipDetails.qrCode} alt="QR Code" className="w-32 h-32 mx-auto my-2"/>
+            <div className="p-4 bg-gray-100 rounded-lg shadow inline-block text-left">
+              <p><strong>Token Number:</strong> {slip.token}</p>
+              <p><strong>Appointment Date:</strong> {slip.appointment.date}</p>
+              <p><strong>Appointment Time:</strong> {slip.appointment.time}</p>
+              <p><strong>Office Location:</strong> {slip.appointment.location}</p>
+              {/* QR will be generated on backend later */}
+              <div className="mt-3 w-32 h-32 grid place-items-center bg-white border rounded">
+                <span className="text-xs text-gray-500">QR on backend</span>
+              </div>
               <button
-                className="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 mt-2"
-                onClick={() => alert("Downloading slip...")}
+                className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => window.print()}
               >
-                Download Slip
+                Print / Download
               </button>
             </div>
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
-};
-
-export default LoanApplication;
+}
